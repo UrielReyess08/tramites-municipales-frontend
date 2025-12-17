@@ -1,0 +1,110 @@
+'use client';
+import Header from "@/components/dashboard/Header";
+import WelcomeBanner from "@/components/dashboard/WelcomeBanner";
+import TramiteCard from "@/components/dashboard/TramiteCard";
+import InfoPanel from "@/components/dashboard/InfoPanel";
+import Modal from "@/components/ui/Modal";
+import TramiteTypeSelector from "@/components/tramites/TramiteTypeSelector";
+import FileUploadModal from "@/components/tramites/FileUpLoadModal";
+import { useState } from "react";
+
+export default function DashboardPage() {
+
+  const [modalStep, setModalStep] = useState(null);
+  const [selectedTramite, setSelectedTramite] = useState(null);
+
+  function handleSelectTramite(tramite) {
+    console.log('Trámite seleccionado:', tramite);
+    setIsModalOpen(false);
+  }
+
+  function handleSelectTramite(tramite) {
+    setSelectedTramite(tramite);
+    setModalStep('upload');
+  }
+
+  function handleBackToSelection() {
+    setModalStep('select');
+    setSelectedTramite(null);
+}
+
+  function handleContinueUpload(files) {
+    console.log('Continuar con archivos:', files);
+    setModalStep(null);
+    setSelectedTramite(null);
+  }
+
+  function closeModal() {
+    setModalStep(null);
+    setSelectedTramite(null);
+  }
+
+  return (
+    <main className="min-h-screen bg-[#d9d9d9]">
+      <Header />
+
+      <div className="mx-auto max-w-[1120px] px-8 py-8">
+        <section className="mb-10">
+          <WelcomeBanner />
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-[28px] font-bold text-black mb-10">Trámites</h2>
+
+          <div className="
+            grid grid-cols-1
+            md:grid-cols-[repeat(3,200px)]
+            gap-x-12 gap-y-10
+            md:justify-center
+            justify-items-center
+            ">
+            <TramiteCard
+              icon="plus"
+              active
+              title="Realizar Trámite"
+              subtitle="Inicia un nuevo trámite municipal"
+              ctaText="Comenzar"
+              onClick={() => setModalStep('select')}
+            />
+            <TramiteCard
+              icon="clock"
+              title="Ver mis Trámites"
+              subtitle="Consulta el estado de tus trámites"
+              ctaText="Ver Historial"
+            />
+            <TramiteCard
+              icon="gear"
+              title="Preguntas Frecuentes"
+              subtitle="Resuelve tus dudas sobre trámites"
+              ctaText="Ver FAQ"
+            />
+          </div>
+        </section>
+
+        <section>
+          <InfoPanel />
+        </section>
+
+        <Modal
+          isOpen={modalStep === 'select'} 
+          onClose={closeModal}           
+          title="Seleccionar Tipo de Trámite"
+        >
+          <TramiteTypeSelector onSelect={handleSelectTramite} />
+        </Modal>
+
+        <Modal
+          isOpen={modalStep === 'upload'}
+          onClose={closeModal}
+          title="Subir Archivos"
+        >
+          <FileUploadModal
+            tramite={selectedTramite}
+            onBack={handleBackToSelection}
+            onContinue={handleContinueUpload}
+          />
+        </Modal>
+      </div>
+    </main>
+  );
+}
