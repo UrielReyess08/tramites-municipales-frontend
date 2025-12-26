@@ -1,10 +1,12 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FolderDown, FolderUp } from "lucide-react";
 
 
 export default function FileUploadModal({ tramite, onBack, onContinue }) {
   const [files, setFiles] = useState({});
+  const router = useRouter();
 
   const requisitos = [
     {
@@ -30,7 +32,9 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
 
   function handleContinue() {
     console.log('Archivos subidos:', files);
-    onContinue(files);
+    onContinue?.(files);
+
+    router.push('/dasboard/tramites/nuevo');
   }
 
   return (
