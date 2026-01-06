@@ -1,27 +1,60 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Eye, EyeOff, LogIn } from "lucide-react";
 
 export default function LoginForm() {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Credenciales incorrectas");
+      }
+
+      console.log("EMAIL STATE:", email);
+      console.log("LOGIN RESPONSE:", data)
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("email", email);
+      router.push("/dasboard");
+    } catch (err) {
+      setError(err?.message || "Error al iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const inputClass =
-  "w-full h-[44px] rounded-[4px] border border-black/30 bg-[#f5f5f5] " +
-  "px-4 pr-12 text-sm text-black caret-black " + 
-  "placeholder:text-[#9a9a9a] " +
-  "focus:outline-none focus:ring-0 focus:border-[#bdbdbd]";
-
+    "w-full h-[44px] rounded-[4px] border border-black/30 bg-[#f5f5f5] " +
+    "px-4 pr-12 text-sm text-black caret-black " +
+    "placeholder:text-[#9a9a9a] " +
+    "focus:outline-none focus:ring-0 focus:border-[#bdbdbd]";
 
   return (
     <form onSubmit={onSubmit} className="grid gap-8">
+      {error && <p className="text-center text-sm text-red-600">{error}</p>}
+
       <div className="relative">
         <input
           type="email"
@@ -59,6 +92,7 @@ export default function LoginForm() {
 
       <button
         type="submit"
+        disabled={loading}
         className="
           mt-6
           text-sm
@@ -68,10 +102,11 @@ export default function LoginForm() {
           flex items-center justify-center gap-2
           shadow-[0_4px_0_rgba(0,0,0,0.18)]
           hover:brightness-95 transition
+          disabled:opacity-70 disabled:cursor-not-allowed
         "
       >
         <LogIn className="h-[18px] w-[18px]" />
-        Iniciar Sesión
+        {loading ? "Ingresando..." : "Iniciar Sesión"}
       </button>
 
       <div className="grid gap-2 text-center text-sm">

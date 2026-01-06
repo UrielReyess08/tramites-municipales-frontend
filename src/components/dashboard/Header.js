@@ -1,11 +1,23 @@
 'use client'
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from 'lucide-react';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("email");
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+  }, []);
+
+  const initial = useMemo(() => {
+    return email ? email.charAt(0).toUpperCase() : "U";
+  }, [email]);
 
   const navItems = [
     { href: '/tramites', label: 'Trámites' },
@@ -46,9 +58,9 @@ export default function Header() {
 
         <div className="hidden md:flex items-center gap-3 bg-white/18 border border-white/25 rounded-lg px-4 py-2">
           <span className="h-9 w-9 rounded-full bg-white/20 border border-white/30 flex items-center justify-center font-semibold">
-            U
+            {initial}
           </span>
-          <span className="text-sm opacity-95">usuario@gmail.com</span>
+          <span className="text-sm opacity-95">{email}</span>
         </div>
       </div>
 
@@ -58,7 +70,7 @@ export default function Header() {
           <div className="px-4 py-4 space-y-4">
 
             <div className="bg-white/18 border border-white/25 rounded-lg px-4 py-2">
-              <p className="text-sm">usuario@gmail.com</p>
+              <p className="text-sm">{email}</p>
             </div>
 
             <nav className="space-y-1">
