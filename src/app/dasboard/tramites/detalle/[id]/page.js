@@ -2,181 +2,195 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import Header from '@/components/dashboard/Header';
 import TramiteTimeline from '@/components/tramites/TramiteTimeline';
 import { ArrowLeft, Download } from 'lucide-react';
 
 export default function DetalleTramitePage() {
   const router = useRouter();
-  const params = useParams();
+  const { id } = useParams();
   const [tramite, setTramite] = useState(null);
   const [historial, setHistorial] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (params?.id) {
-      cargarDetalles(params.id);
+    if (id) {
+      cargarDetalleTramite();
+      cargarHistorial();
     }
-  }, [params]);
+  }, [id]);
 
-  async function cargarDetalles(id) {
+  async function cargarDetalleTramite() {
     try {
-      setLoading(true);
       const token = localStorage.getItem('token');
-
-      if (!token) {
-        router.push('/auth/login');
-        return;
-      }
-
-      // Cargar resumen del trámite
-      const summaryResponse = await fetch(`/api/applications/${id}/summary`, {
+      const response = await fetch(`/api/applications/${id}/summary`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      if (!summaryResponse.ok) {
-        throw new Error('Error al cargar detalles del trámite');
-      }
-
-      const summaryData = await summaryResponse.json();
-      console.log('Datos del summary:', summaryData);
-
-      // Cargar historial del trámite
-      const historyResponse = await fetch(`/api/applications/${id}/history`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      let historyData = [];
-      if (historyResponse.ok) {
-        historyData = await historyResponse.json();
-        console.log('Datos del historial:', historyData);
-      }
-
-      // Transformar datos del trámite - Manejo flexible de diferentes estructuras
-      const tramiteTransformado = {
-        id: summaryData.applicationId || summaryData.id || id,
-        numero: summaryData.applicationNumber || `TRM-${summaryData.applicationId || id}`,
-        tipo: summaryData.procedureName || summaryData.procedure?.name || 'Trámite',
-        descripcion: summaryData.procedure?.description || summaryData.description || 'Sin descripción',
-        estado: translateStatus(summaryData.status),
-        categoria: summaryData.procedure?.category || 'General',
-        fechaSolicitud: formatDate(summaryData.createAt || summaryData.createdAt || summaryData.applicationDate),
-        fechaActualizacion: formatDate(summaryData.updateAt || summaryData.updatedAt),
-        // Información adicional del usuario si viene
-        userName: summaryData.userName || summaryData.user?.name,
-        userEmail: summaryData.userEmail || summaryData.user?.email,
-        // Costo si viene
-        costo: summaryData.cost || summaryData.procedure?.cost,
-        // Información de pago si existe
-        payment: summaryData.payment,
-        // Archivos si vienen
-        files: summaryData.files || [],
-        // Formulario si viene
-        formData: summaryData.formData || summaryData.form,
-        informacionAdicional: summaryData.notes || summaryData.additionalInfo || getStatusMessage(summaryData.status),
-        _original: summaryData
-      };
-
-      setTramite(tramiteTransformado);
-
-      // Transformar historial
-      const historialTransformado = Array.isArray(historyData) ? historyData.map(item => ({
-        estado: translateStatus(item.status) || item.estado || 'Actualización',
-        fecha: formatDateLong(item.changeDate || item.timestamp || item.createdAt || item.fecha),
-        descripcion: item.description || item.notes || getHistoryDescription(item.status),
-        isActive: true
-      })) : [];
-
-      // Si no hay historial de la API, crear uno básico con los datos del summary
-      if (historialTransformado.length === 0) {
-        historialTransformado.push({
-          estado: tramiteTransformado.estado,
-          fecha: formatDateLong(summaryData.createAt || summaryData.createdAt),
-          descripcion: getHistoryDescription(summaryData.status),
-          isActive: true
+      if (response.ok) {
+        const data = await response.json();
+        setTramite({
+          id: data.id,
+          numero: `TR-${String(data.id).padStart(6, '0')}`,
+          tipo: data.procedureName || 'Trámite Municipal',
+          descripcion: data.procedure?.description || 'Trámite en proceso',
+          estado: mapearEstado(data.status),
+          categoria: 'Trámites Municipales',
+          fechaSolicitud: formatearFecha(data.createdAt),
+          fechaActualizacion: formatearFecha(data.updatedAt),
+          informacionAdicional: obtenerInformacionAdicional(data),
+          ...data
         });
+      } else if (response.status === 401) {
+        router.push('/auth/login');
       }
+    } catch (error) {
+      console.error('Error al cargar detalle:', error);
+    }
+  }
 
-      setHistorial(historialTransformado);
+  async function cargarHistorial() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`/api/applications/${id}/history`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
-    } catch (err) {
-      console.error('Error al cargar detalles:', err);
-      setError(err.message);
+      if (response.ok) {
+        const data = await response.json();
+        const historialMapeado = data.map((item, index) => ({
+          estado: mapearEstadoHistorial(item.status),
+          fecha: formatearFechaLarga(item.createdAt),
+          descripcion: item.description || obtenerDescripcionEstado(item.status),
+          isActive: index === data.length - 1 // El último es el actual
+        }));
+        setHistorial(historialMapeado);
+      }
+    } catch (error) {
+      console.error('Error al cargar historial:', error);
     } finally {
       setLoading(false);
     }
   }
 
-  function translateStatus(status) {
-    const statusMap = {
-      'BORRADOR': 'Pendiente',
-      'ENVIADO': 'En proceso',
-      'PAGADO': 'En proceso',
-      'EN_REVISION': 'En proceso',
-      'OBSERVADO': 'Pendiente',
-      'APROBADO': 'Completado',
-      'RECHAZADO': 'Rechazado'
+  function mapearEstado(status) {
+    const estados = {
+      'DRAFT': 'Borrador',
+      'PENDING': 'Pendiente',
+      'SUBMITTED': 'En proceso',
+      'IN_PROGRESS': 'En proceso',
+      'PAID': 'Completado',
+      'COMPLETED': 'Completado',
+      'REJECTED': 'Rechazado',
+      'CANCELLED': 'Cancelado'
     };
-    return statusMap[status] || 'Pendiente';
+    return estados[status] || status;
   }
 
-  function formatDate(dateString) {
-    if (!dateString) return 'N/A';
+  function mapearEstadoHistorial(status) {
+    const estados = {
+      'DRAFT': 'Trámite iniciado',
+      'PENDING': 'Documentos pendientes',
+      'SUBMITTED': 'En revisión',
+      'IN_PROGRESS': 'En proceso',
+      'PAID': 'Pago procesado',
+      'COMPLETED': 'Trámite completado',
+      'REJECTED': 'Trámite rechazado',
+      'CANCELLED': 'Trámite cancelado'
+    };
+    return estados[status] || status;
+  }
+
+  function obtenerDescripcionEstado(status) {
+    const descripciones = {
+      'DRAFT': 'Tu solicitud fue creada en el sistema',
+      'PENDING': 'Se requieren documentos adicionales',
+      'SUBMITTED': 'Tu solicitud fue enviada y está siendo revisada',
+      'IN_PROGRESS': 'Tu trámite está siendo procesado',
+      'PAID': 'El pago ha sido procesado exitosamente',
+      'COMPLETED': 'Tu trámite ha sido completado',
+      'REJECTED': 'Tu solicitud fue rechazada',
+      'CANCELLED': 'El trámite fue cancelado'
+    };
+    return descripciones[status] || 'Actualización del trámite';
+  }
+
+  function obtenerInformacionAdicional(data) {
+    if (data.status === 'COMPLETED' || data.status === 'PAID') {
+      return 'Trámite aprobado exitosamente. Documento disponible para recoger.';
+    } else if (data.status === 'IN_PROGRESS' || data.status === 'SUBMITTED') {
+      return 'Tu trámite está siendo procesado por la dependencia correspondiente.';
+    } else if (data.status === 'PENDING') {
+      return 'Se requiere completar la documentación para continuar.';
+    } else if (data.status === 'REJECTED') {
+      return 'Tu solicitud fue rechazada. Contacta con la oficina para más información.';
+    }
+    return 'Trámite en proceso.';
+  }
+
+  function formatearFecha(fecha) {
+    if (!fecha) return 'N/A';
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
+      const date = new Date(fecha);
+      return date.toLocaleDateString('es-PE', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
       });
     } catch {
-      return 'N/A';
+      return fecha;
     }
   }
 
-  function formatDateLong(dateString) {
-    if (!dateString) return 'N/A';
+  function formatearFechaLarga(fecha) {
+    if (!fecha) return 'N/A';
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('es-ES', {
+      const date = new Date(fecha);
+      return date.toLocaleDateString('es-PE', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'
       });
     } catch {
-      return 'N/A';
+      return fecha;
     }
   }
 
-  function getStatusMessage(status) {
-    const messages = {
-      'BORRADOR': 'Tu solicitud está en borrador y aún no ha sido enviada.',
-      'ENVIADO': 'Tu solicitud ha sido enviada y está siendo revisada.',
-      'PAGADO': 'El pago ha sido procesado correctamente.',
-      'EN_REVISION': 'Tu trámite está siendo procesado por la dependencia correspondiente.',
-      'OBSERVADO': 'Tu solicitud tiene observaciones que deben ser atendidas.',
-      'APROBADO': 'Trámite aprobado exitosamente. Documento disponible para entregar.',
-      'RECHAZADO': 'Tu solicitud ha sido rechazada.'
-    };
-    return messages[status] || 'Estado del trámite.';
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#d9d9d9]">
+        <Header />
+        <section className="mx-auto max-w-[1120px] px-6 py-8">
+          <div className="text-center py-12">
+            <p className="text-black/50">Cargando detalles del trámite...</p>
+          </div>
+        </section>
+      </main>
+    );
   }
 
-  function getHistoryDescription(status) {
-    const descriptions = {
-      'BORRADOR': 'Tu solicitud fue creada en el sistema',
-      'ENVIADO': 'Tu solicitud fue registrada en el sistema',
-      'PAGADO': 'El pago fue procesado correctamente',
-      'EN_REVISION': 'Tu trámite está siendo procesado por la dependencia correspondiente',
-      'OBSERVADO': 'Se han detectado observaciones en tu solicitud',
-      'APROBADO': 'Tu solicitud ha sido procesada exitosamente',
-      'RECHAZADO': 'Tu solicitud no pudo ser aprobada'
-    };
-    return descriptions[status] || 'Actualización del estado del trámite';
+  if (!tramite) {
+    return (
+      <main className="min-h-screen bg-[#d9d9d9]">
+        <Header />
+        <section className="mx-auto max-w-[1120px] px-6 py-8">
+          <div className="text-center py-12">
+            <p className="text-black/50">No se encontró el trámite</p>
+            <button
+              onClick={() => router.back()}
+              className="mt-4 text-blue-600 hover:underline"
+            >
+              Volver
+            </button>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   const getEstadoColor = (estado) => {

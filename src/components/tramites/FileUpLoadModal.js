@@ -16,30 +16,10 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (tramite) {
-      // Intentar cargar datos existentes primero
-      const savedApplicationId = localStorage.getItem('applicationId');
-      const savedRequisitos = localStorage.getItem('currentRequisitos');
-      
-      if (savedApplicationId && savedRequisitos) {
-        // Ya existe una solicitud, solo cargar requisitos y progreso
-        try {
-          setApplicationId(savedApplicationId);
-          setRequisitos(JSON.parse(savedRequisitos));
-          
-          // Cargar progreso de uploads previos
-          const progress = loadUploadProgress();
-          setUploaded(progress);
-          
-          setLoading(false);
-        } catch (error) {
-          console.error('Error al cargar datos guardados:', error);
-          iniciarTramite();
-        }
-      } else {
-        // Crear nueva solicitud
-        iniciarTramite();
-      }
+    if (tramite && !applicationId) {
+      // Solo crear si no existe una solicitud activa
+      console.log('🚀 Iniciando nuevo trámite:', tramite.name || tramite.nombre);
+      iniciarTramite();
     }
   }, [tramite]);
 
@@ -76,6 +56,8 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
       const applicationData = await createResponse.json();
       const newApplicationId = applicationData.id;
       
+      console.log('✅ Solicitud creada con ID:', newApplicationId);
+      
       setApplicationId(newApplicationId);
       localStorage.setItem('applicationId', newApplicationId);
 
@@ -105,6 +87,19 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
 
   async function handleFileChange(requirementId, file) {
     if (!file) return;
+    
+    // Validar que sea PDF
+    if (file.type !== 'application/pdf') {
+      setError(`El archivo "${file.name}" debe ser un PDF. Por favor, convierte tu archivo a formato PDF antes de subirlo.`);
+      return;
+    }
+    
+    // Validar tamaño (máximo 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setError(`El archivo "${file.name}" es muy grande. Tamaño máximo: 10MB`);
+      return;
+    }
     
     setFiles((prev) => ({ ...prev, [requirementId]: file }));
     
@@ -288,6 +283,17 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
 
   return (
     <div className="space-y-6">
+      {/* Mensaje informativo sobre PDF */}
+      <div className="p-3 bg-blue-50 border border-blue-200 rounded-[6px]">
+        <p className="text-[13px] text-blue-800 font-medium flex items-center gap-2">
+          <FolderUp className="h-4 w-4" />
+          Importante: Todos los archivos deben estar en formato PDF
+        </p>
+        <p className="text-[12px] text-blue-700 mt-1">
+          Tamaño máximo por archivo: 10MB
+        </p>
+      </div>
+
       {error && (
         <div className="p-3 bg-red-100 border border-red-300 rounded text-red-700 text-sm">
           {error}
@@ -323,25 +329,35 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
                 )}
               </div>
 
-              <div className="flex justify-center">
-                {req.formatId ? (
-                  <button
-                    type="button"
-                    onClick={() => handleDescargarFormato(req.formatId, req.name)}
-                    className="
-                      h-[30px] w-[120px]
-                      rounded-[4px]
-                      border border-black/10
-                      bg-[#e6e6e6]
-                      text-[12px] font-semibold text-black/60
-                      flex items-center justify-center gap-2
-                      hover:bg-[#d0d0d0]
-                      transition
-                    "
-                  >
-                    <FolderDown className="h-4 w-4" />
-                    Descargar
-                  </button>
+            <div className="flex justify-center">
+              <label className={`
+                h-[30px] w-[120px]
+                rounded-[4px]
+                border border-black/10
+                text-[12px] font-semibold
+                flex items-center justify-center gap-2
+                transition
+                ${uploading[req.id] 
+                  ? 'bg-gray-300 text-black/40 cursor-not-allowed' 
+                  : uploaded[req.id]
+                  ? 'bg-green-100 text-green-700 border-green-300 cursor-pointer'
+                  : 'bg-[#e6e6e6] text-black/60 cursor-pointer hover:bg-[#d0d0d0]'
+                }
+              `}>
+                <input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  className="hidden"
+                  disabled={uploading[req.id]}
+                  onChange={(e) => handleFileChange(req.id, e.target.files?.[0])}
+                />
+                {uploading[req.id] ? (
+                  'Subiendo...'
+                ) : uploaded[req.id] ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    Subido
+                  </>
                 ) : (
                   <span className="text-[11px] text-black/30">Sin formato</span>
                 )}

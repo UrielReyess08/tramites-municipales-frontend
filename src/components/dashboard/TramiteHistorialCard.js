@@ -15,9 +15,21 @@ export default function TramiteHistorialCard({ tramite }) {
     },
     'En proceso': {
       icon: Clock,
-      badge: 'text-orange-600 bg-orange-100'
+      badge: 'text-blue-600 bg-blue-100'
     },
     Pendiente: {
+      icon: PauseCircle,
+      badge: 'text-orange-600 bg-orange-100'
+    },
+    Borrador: {
+      icon: PauseCircle,
+      badge: 'text-gray-600 bg-gray-100'
+    },
+    Rechazado: {
+      icon: PauseCircle,
+      badge: 'text-red-600 bg-red-100'
+    },
+    Cancelado: {
       icon: PauseCircle,
       badge: 'text-red-600 bg-red-100'
     },
