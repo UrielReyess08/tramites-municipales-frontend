@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/dashboard/Header";
 import { MoveLeft, CircleCheckBig , FileText, CalendarDays, User, Mail, Download, Copy, Check } from "lucide-react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 export default function StepThreeClient() {
   const router = useRouter();
@@ -65,8 +67,8 @@ export default function StepThreeClient() {
           month: '2-digit',
           year: 'numeric'
         }),
-        userName: data.userName || data.user?.name || "Usuario",
-        userEmail: data.userEmail || email || "",
+        userName: data.userName || data.user?.name || data.user?.fullName || (data.user?.firstName ? `${data.user.firstName} ${data.user.lastName || ''}`.trim() : null) || localStorage.getItem('userName') || "Usuario",
+        userEmail: data.userEmail || data.user?.email || email || "",
         cost: data.cost || selectedTramite.cost || selectedTramite.precio || 0,
         status: data.status || "EN_PROCESO",
         formData: formData
@@ -90,7 +92,7 @@ export default function StepThreeClient() {
           month: '2-digit',
           year: 'numeric'
         }),
-        userName: "Usuario",
+        userName: localStorage.getItem('userName') || "Usuario",
         userEmail: email || "",
         cost: selectedTramite.cost || selectedTramite.precio || 0,
         status: "REGISTRADO",
@@ -112,6 +114,134 @@ export default function StepThreeClient() {
       }
     }
   };
+
+  const handleDescargarComprobante = async () => {
+  try {
+    const element = document.createElement('div');
+    element.style.position = 'absolute';
+    element.style.left = '-9999px';
+    element.style.top = '0';
+    element.innerHTML = `
+      <div style="padding: 30px; font-family: Arial, sans-serif; color: #333; background: white; width: 800px;">
+        <div style="text-align: center; border-bottom: 3px solid #0b3a77; padding-bottom: 20px; margin-bottom: 30px;">
+          <h2 style="color: #0b3a77; margin: 0; font-size: 28px;">COMPROBANTE DE TRÁMITE</h2>
+          <p style="color: #666; margin: 5px 0 0 0; font-size: 12px;">Municipalidad Distrital de Ate</p>
+        </div>
+        
+        <div style="background: #f8f9fa; border: 2px solid #0b3a77; padding: 20px; margin-bottom: 25px; border-radius: 8px;">
+          <p style="margin: 0 0 10px 0; color: #666; font-size: 11px; text-transform: uppercase;">Número de Trámite</p>
+          <p style="margin: 0; color: #0b3a77; font-size: 24px; font-weight: bold; letter-spacing: 2px;">${summary?.applicationNumber}</p>
+        </div>
+
+        <div style="margin-bottom: 25px; border: 1px solid #ddd; padding: 20px; border-radius: 6px;">
+          <h3 style="color: #0b3a77; font-size: 14px; margin: 0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Información del Trámite</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+            <div>
+              <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">TIPO DE TRÁMITE</p>
+              <p style="color: #333; margin: 0; font-weight: bold;">${summary?.procedureName}</p>
+            </div>
+            <div>
+              <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">FECHA DE REGISTRO</p>
+              <p style="color: #333; margin: 0; font-weight: bold;">${summary?.createdAt}</p>
+            </div>
+            <div>
+              <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">ESTADO</p>
+              <p style="color: #27ae60; margin: 0; font-weight: bold;">✓ ${(summary?.status || 'REGISTRADO').replace(/_/g, ' ')}</p>
+            </div>
+            <div>
+              <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">COSTO</p>
+              <p style="color: #0b3a77; margin: 0; font-weight: bold; font-size: 16px;">S/ ${summary?.cost?.toFixed(2) || '0.00'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 25px; border: 1px solid #ddd; padding: 20px; border-radius: 6px;">
+          <h3 style="color: #0b3a77; font-size: 14px; margin: 0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Solicitante</h3>
+          
+          <div style="font-size: 13px;">
+            <div style="margin-bottom: 10px;">
+              <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">NOMBRE</p>
+              <p style="color: #333; margin: 0;">${summary?.userName}</p>
+            </div>
+            <div>
+              <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">CORREO ELECTRÓNICO</p>
+              <p style="color: #333; margin: 0;">${summary?.userEmail}</p>
+            </div>
+          </div>
+        </div>
+
+        ${summary?.formData?.direccion_propiedad ? `
+          <div style="margin-bottom: 25px; border: 1px solid #ddd; padding: 20px; border-radius: 6px;">
+            <h3 style="color: #0b3a77; font-size: 14px; margin: 0 0 15px 0; border-bottom: 1px solid #eee; padding-bottom: 10px;">Datos de la Propiedad</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px;">
+              <div>
+                <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">DIRECCIÓN</p>
+                <p style="color: #333; margin: 0;">${summary.formData.direccion_propiedad}</p>
+              </div>
+              ${summary.formData.area_m2 ? `
+                <div>
+                  <p style="color: #999; margin: 0 0 5px 0; font-size: 11px; font-weight: bold;">ÁREA</p>
+                  <p style="color: #333; margin: 0;">${summary.formData.area_m2} m²</p>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        ` : ''}
+
+        <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; text-align: center; margin-top: 30px; border-top: 2px solid #ddd; padding-top: 20px;">
+          <p style="margin: 0; font-size: 11px; color: #666;">
+            <strong>Fecha y Hora de Descarga:</strong> ${new Date().toLocaleString('es-ES')}
+          </p>
+          <p style="margin: 10px 0 0 0; font-size: 10px; color: #999;">
+            Este documento fue generado automáticamente. Guarda una copia para tu registro.
+          </p>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(element);
+    
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      backgroundColor: '#fff',
+      logging: false,
+      useCORS: true,
+    });
+
+    document.body.removeChild(element);
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgHeight = (canvas.height * pageWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, pageWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save(`Comprobante_Tramite_${summary?.applicationNumber || 'TRM'}.pdf`);
+  } catch (error) {
+    console.error('Error al generar PDF:', error);
+    alert('Error al descargar el comprobante. Por favor, intenta de nuevo.');
+  }
+};
 
   if (loading) {
     return (
@@ -292,10 +422,7 @@ export default function StepThreeClient() {
             <button
               type="button"
               className="h-[34px] flex-1 rounded-[4px] border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90 flex items-center justify-center gap-2"
-              onClick={() => {
-                //descargas PDF real
-                console.log("Descargar comprobante");
-              }}
+              onClick={() => handleDescargarComprobante()}
             >
               <Download className="h-4 w-4" />
               Descargar Comprobante

@@ -37,6 +37,11 @@ export default function LoginForm() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("email", email);
       
+      // Guardar nombre de usuario si está disponible
+      if (data.name || data.userName || data.user?.name || data.user?.fullName) {
+        localStorage.setItem("userName", data.name || data.userName || data.user?.name || data.user?.fullName);
+      }
+      
       // Extraer userId del token JWT
       const payload = decodeJWT(data.token);
       if (payload) {
