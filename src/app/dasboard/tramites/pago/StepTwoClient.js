@@ -7,7 +7,7 @@ import { MoveLeft, CreditCard, Wallet, Banknote } from "lucide-react";
 
 export default function StepTwoClient() {
   const router = useRouter();
-  const [method, setMethod] = useState("card");
+  const [method, setMethod] = useState(null);
   const [loading, setLoading] = useState(false);
   const [cost, setCost] = useState(0);
   const [error, setError] = useState("");
@@ -42,6 +42,13 @@ export default function StepTwoClient() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    
+    // Validar que haya un método seleccionado
+    if (!method) {
+      setError("Por favor, selecciona un método de pago antes de continuar");
+      return;
+    }
+
     setLoading(true);
     setError("");
 

@@ -25,12 +25,16 @@ export default function NuevoTramiteClient() {
     }
   }, []);
 
+  // Solo números enteros: elimina cualquier carácter no numérico
+  function sanitizeIntegerInput(value) {
+    if (typeof value !== 'string') return '';
+    return value.replace(/[^0-9]/g, '');
+  }
+
   function handleChange(e) {
     const { name, value } = e.target;
-    const newData = {
-      ...formData,
-      [name]: value
-    };
+    const newValue = name === 'area_m2' ? sanitizeIntegerInput(value) : value;
+    const newData = { ...formData, [name]: newValue };
     setFormData(newData);
     // Guardar en localStorage para persistencia
     localStorage.setItem('tramiteFormData', JSON.stringify(newData));
@@ -50,6 +54,12 @@ export default function NuevoTramiteClient() {
         return;
       }
 
+      // Validar que el área sea un entero válido
+      const areaInt = parseInt(formData.area_m2, 10);
+      if (isNaN(areaInt)) {
+        throw new Error('Ingrese solo números en el campo Área en m².');
+      }
+
       const response = await fetch(`/api/applications/${applicationId}/form`, {
         method: 'POST',
         headers: {
@@ -64,7 +74,7 @@ export default function NuevoTramiteClient() {
             },
             {
               field: "area_m2",
-              value: formData.area_m2
+              value: String(areaInt)
             }
           ]
         }),
@@ -134,7 +144,16 @@ export default function NuevoTramiteClient() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[12px] font-medium text-black/80">Área en m² *</label>
-                  <input type="text" name="area_m2" value={formData.area_m2} onChange={handleChange} required placeholder="Ej: 256.90" className="h-[36px] w-full rounded-[4px] text-black/80 border border-black/25 bg-[#dcdcdc] px-3 text-[13px] outline-none focus:border-black/40 placeholder:text-black/40" />
+                  <input
+                    type="text"
+                    name="area_m2"
+                    value={formData.area_m2}
+                    onChange={handleChange}
+                    inputMode="numeric"
+                    required
+                    placeholder="Ej: 256"
+                    className="h-[36px] w-full rounded-[4px] text-black/80 border border-black/25 bg-[#dcdcdc] px-3 text-[13px] outline-none focus:border-black/40 placeholder:text-black/40"
+                  />
                 </div>
               </div>
               <div className="space-y-2 mt-6">

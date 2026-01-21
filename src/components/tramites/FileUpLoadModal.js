@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FolderDown, FolderUp, CheckCircle2 } from "lucide-react";
+import { FolderDown, FolderUp, CheckCircle2, X } from "lucide-react";
 import { saveUploadProgress, loadUploadProgress } from '@/lib/tramiteState';
 
 export default function FileUploadModal({ tramite, onBack, onContinue }) {
@@ -21,6 +21,11 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
       iniciarTramite();
     }
   }, [tramite]);
+
+  useEffect(() => {
+    const progress = loadUploadProgress();
+    setUploaded(progress || {});
+  }, []);
 
   async function iniciarTramite() {
     try {
@@ -152,6 +157,19 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
     }
   }
 
+  function handleDeleteUpload(requirementId) {
+    setFiles((prev) => {
+      const newFiles = { ...prev };
+      delete newFiles[requirementId];
+      return newFiles;
+    });
+    const newUploaded = { ...uploaded };
+    delete newUploaded[requirementId];
+    setUploaded(newUploaded);
+    saveUploadProgress(requirementId, false);
+    setError(null);
+  }
+
   async function handleDescargarFormato(formatId, nombre) {
     try {
       const token = localStorage.getItem('token');
@@ -265,41 +283,51 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
             </div>
 
             <div className="flex justify-center">
-              <label className={`
-                h-[30px] w-[120px]
-                rounded-[4px]
-                border border-black/10
-                text-[12px] font-semibold
-                flex items-center justify-center gap-2
-                transition
-                ${uploading[req.id] 
-                  ? 'bg-gray-300 text-black/40 cursor-not-allowed' 
-                  : uploaded[req.id]
-                  ? 'bg-green-100 text-green-700 border-green-300 cursor-pointer'
-                  : 'bg-[#e6e6e6] text-black/60 cursor-pointer hover:bg-[#d0d0d0]'
-                }
-              `}>
-                <input
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  className="hidden"
-                  disabled={uploading[req.id]}
-                  onChange={(e) => handleFileChange(req.id, e.target.files?.[0])}
-                />
-                {uploading[req.id] ? (
-                  'Subiendo...'
-                ) : uploaded[req.id] ? (
-                  <>
-                    <CheckCircle2 className="h-4 w-4" />
-                    Subido
-                  </>
-                ) : (
-                  <>
-                    <FolderUp className="h-4 w-4" />
-                    Subir
-                  </>
-                )}
-              </label>
+              {uploaded[req.id] ? (
+                <div
+                  className="h-[30px] w-[150px] rounded-[4px] border border-green-300 bg-green-100 text-[12px] font-semibold text-green-700 flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Subido
+                  <button
+                    type="button"
+                    aria-label="Eliminar archivo"
+                    onClick={() => handleDeleteUpload(req.id)}
+                    className="ml-2 rounded-[4px] p-[2px] text-green-800 hover:text-red-700 hover:bg-red-100"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className={`
+                  h-[30px] w-[120px]
+                  rounded-[4px]
+                  border border-black/10
+                  text-[12px] font-semibold
+                  flex items-center justify-center gap-2
+                  transition
+                  ${uploading[req.id]
+                    ? 'bg-gray-300 text-black/40 cursor-not-allowed'
+                    : 'bg-[#e6e6e6] text-black/60 cursor-pointer hover:bg-[#d0d0d0]'
+                  }
+                `}>
+                  <input
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    className="hidden"
+                    disabled={uploading[req.id] || uploaded[req.id]}
+                    onChange={(e) => handleFileChange(req.id, e.target.files?.[0])}
+                  />
+                  {uploading[req.id] ? (
+                    'Subiendo...'
+                  ) : (
+                    <>
+                      <FolderUp className="h-4 w-4" />
+                      Subir
+                    </>
+                  )}
+                </label>
+              )}
             </div>
           </div>
         ))}
