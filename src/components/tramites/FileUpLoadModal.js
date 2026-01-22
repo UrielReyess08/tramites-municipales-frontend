@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FolderDown, FolderUp, CheckCircle2, X } from "lucide-react";
 import { saveUploadProgress, loadUploadProgress } from "@/lib/tramiteState";
@@ -13,14 +13,12 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
   const [error, setError] = useState(null);
   const [applicationId, setApplicationId] = useState(null);
   const router = useRouter();
+  const isCreatingRef = useRef(false);
 
   useEffect(() => {
-    if (tramite && !applicationId) {
-      // Solo crear si no existe una solicitud activa
-      console.log(
-        "🚀 Iniciando nuevo trámite:",
-        tramite.name || tramite.nombre,
-      );
+    if (tramite && !applicationId && !isCreatingRef.current) {
+      // Solo crear si no existe una solicitud activa y no está en proceso de creación
+      console.log("Iniciando nuevo trámite:", tramite.name || tramite.nombre);
       iniciarTramite();
     }
   }, [tramite]);
@@ -31,7 +29,13 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
   }, []);
 
   async function iniciarTramite() {
+    // Prevenir creación doble de solicitud
+    if (isCreatingRef.current) {
+      return;
+    }
+
     try {
+      isCreatingRef.current = true;
       setLoading(true);
       setError(null);
 
@@ -91,6 +95,7 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
     } catch (err) {
       console.error("Error al iniciar trámite:", err);
       setError(err.message);
+      isCreatingRef.current = false; // Resetear en caso de error
     } finally {
       setLoading(false);
     }
