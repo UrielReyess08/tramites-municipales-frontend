@@ -1,8 +1,8 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { FolderDown, FolderUp, CheckCircle2, X } from "lucide-react";
-import { saveUploadProgress, loadUploadProgress } from '@/lib/tramiteState';
+import { saveUploadProgress, loadUploadProgress } from "@/lib/tramiteState";
 
 export default function FileUploadModal({ tramite, onBack, onContinue }) {
   const [files, setFiles] = useState({});
@@ -17,7 +17,10 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
   useEffect(() => {
     if (tramite && !applicationId) {
       // Solo crear si no existe una solicitud activa
-      console.log('🚀 Iniciando nuevo trámite:', tramite.name || tramite.nombre);
+      console.log(
+        "🚀 Iniciando nuevo trámite:",
+        tramite.name || tramite.nombre,
+      );
       iniciarTramite();
     }
   }, [tramite]);
@@ -32,19 +35,21 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-      
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
       if (!userId) {
-        throw new Error('No se encontró el ID de usuario. Por favor, inicia sesión nuevamente.');
+        throw new Error(
+          "No se encontró el ID de usuario. Por favor, inicia sesión nuevamente.",
+        );
       }
 
       // 1. Crear la solicitud
-      const createResponse = await fetch('/api/applications', {
-        method: 'POST',
+      const createResponse = await fetch("/api/applications", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           userId: parseInt(userId),
@@ -54,35 +59,37 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
 
       if (!createResponse.ok) {
         const errorData = await createResponse.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al crear la solicitud');
+        throw new Error(errorData.message || "Error al crear la solicitud");
       }
 
       const applicationData = await createResponse.json();
       const newApplicationId = applicationData.id;
-      
-      console.log('✅ Solicitud creada con ID:', newApplicationId);
-      
+
+      console.log("✅ Solicitud creada con ID:", newApplicationId);
+
       setApplicationId(newApplicationId);
-      localStorage.setItem('applicationId', newApplicationId);
+      localStorage.setItem("applicationId", newApplicationId);
 
       // 2. Cargar requisitos
-      const reqResponse = await fetch(`/api/procedures/${tramite.id}/requisitos`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
+      const reqResponse = await fetch(
+        `/api/procedures/${tramite.id}/requisitos`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
-      
+      );
+
       if (!reqResponse.ok) {
         const errorData = await reqResponse.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al cargar requisitos');
+        throw new Error(errorData.message || "Error al cargar requisitos");
       }
 
       const reqData = await reqResponse.json();
       setRequisitos(reqData);
-      localStorage.setItem('currentRequisitos', JSON.stringify(reqData));
-
+      localStorage.setItem("currentRequisitos", JSON.stringify(reqData));
     } catch (err) {
-      console.error('Error al iniciar trámite:', err);
+      console.error("Error al iniciar trámite:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -91,61 +98,62 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
 
   async function handleFileChange(requirementId, file) {
     if (!file) return;
-    
+
     // Validar que sea PDF
-    if (file.type !== 'application/pdf') {
-      setError(`El archivo "${file.name}" debe ser un PDF. Por favor, convierte tu archivo a formato PDF antes de subirlo.`);
+    if (file.type !== "application/pdf") {
+      setError(
+        `El archivo "${file.name}" debe ser un PDF. Por favor, convierte tu archivo a formato PDF antes de subirlo.`,
+      );
       return;
     }
-    
+
     // Validar tamaño (máximo 10MB)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       setError(`El archivo "${file.name}" es muy grande. Tamaño máximo: 10MB`);
       return;
     }
-    
+
     setFiles((prev) => ({ ...prev, [requirementId]: file }));
-    
+
     // Subir automáticamente
     await handleUpload(requirementId, file);
   }
 
   async function handleUpload(requirementId, file) {
     if (!applicationId) {
-      setError('No se encontró la solicitud');
+      setError("No se encontró la solicitud");
       return;
     }
 
     try {
       setUploading((prev) => ({ ...prev, [requirementId]: true }));
       setError(null);
-      
-      const token = localStorage.getItem('token');
+
+      const token = localStorage.getItem("token");
       const formData = new FormData();
-      formData.append('requirementId', requirementId);
-      formData.append('file', file);
+      formData.append("requirementId", requirementId);
+      formData.append("file", file);
 
       const response = await fetch(`/api/applications/${applicationId}/files`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al subir archivo');
+        throw new Error(errorData.message || "Error al subir archivo");
       }
-      
+
       // Marcar como subido y guardar progreso
       const newUploaded = { ...uploaded, [requirementId]: true };
       setUploaded(newUploaded);
       saveUploadProgress(requirementId, true);
-      
     } catch (err) {
-      console.error('Error al subir archivo:', err);
+      console.error("Error al subir archivo:", err);
       setError(`Error al subir archivo: ${err.message}`);
       setFiles((prev) => {
         const newFiles = { ...prev };
@@ -172,20 +180,24 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
 
   async function handleDescargarFormato(formatId, nombre) {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/formats/${formatId}/download`, {
+      const token = localStorage.getItem("token");
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
+      const url_api = `${API_BASE}/formats/${formatId}/download/proxy`;
+
+      const response = await fetch(url_api, {
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Error al descargar formato');
+        throw new Error("Error al descargar formato");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = nombre || `formato-${formatId}.pdf`;
       document.body.appendChild(a);
@@ -193,21 +205,21 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      console.error('Error al descargar formato:', err);
+      console.error("Error al descargar formato:", err);
       setError(`Error al descargar formato: ${err.message}`);
     }
   }
 
   function handleContinue() {
     // Verificar que todos los requisitos tengan archivo subido
-    const requisitosSinArchivo = requisitos.filter(req => !uploaded[req.id]);
-    
+    const requisitosSinArchivo = requisitos.filter((req) => !uploaded[req.id]);
+
     if (requisitosSinArchivo.length > 0) {
-      setError('Debes subir todos los archivos requeridos antes de continuar');
+      setError("Debes subir todos los archivos requeridos antes de continuar");
       return;
     }
 
-    router.push('/dasboard/tramites/nuevo');
+    router.push("/dasboard/tramites/nuevo");
   }
 
   if (loading) {
@@ -259,11 +271,16 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
             </div>
 
             <div className="flex justify-center">
-              {req.formatId ? (
-                <button
-                  type="button"
-                  onClick={() => handleDescargarFormato(req.formatId, req.name)}
-                  className="
+              {req.formats && req.formats.length > 0 ? (
+                (() => {
+                  const format = req.formats[0];
+                  return (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDescargarFormato(format.id, format.fileName)
+                      }
+                      className="
                     h-[30px] w-[120px]
                     rounded-[4px]
                     border border-black/10
@@ -273,10 +290,12 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
                     hover:bg-[#d0d0d0]
                     transition
                   "
-                >
-                  <FolderDown className="h-4 w-4" />
-                  Descargar
-                </button>
+                    >
+                      <FolderDown className="h-4 w-4" />
+                      Descargar
+                    </button>
+                  );
+                })()
               ) : (
                 <span className="text-[11px] text-black/30">Sin formato</span>
               )}
@@ -284,9 +303,7 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
 
             <div className="flex justify-center">
               {uploaded[req.id] ? (
-                <div
-                  className="h-[30px] w-[150px] rounded-[4px] border border-green-300 bg-green-100 text-[12px] font-semibold text-green-700 flex items-center justify-center gap-2"
-                >
+                <div className="h-[30px] w-[150px] rounded-[4px] border border-green-300 bg-green-100 text-[12px] font-semibold text-green-700 flex items-center justify-center gap-2">
                   <CheckCircle2 className="h-4 w-4" />
                   Subido
                   <button
@@ -299,27 +316,32 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
                   </button>
                 </div>
               ) : (
-                <label className={`
+                <label
+                  className={`
                   h-[30px] w-[120px]
                   rounded-[4px]
                   border border-black/10
                   text-[12px] font-semibold
                   flex items-center justify-center gap-2
                   transition
-                  ${uploading[req.id]
-                    ? 'bg-gray-300 text-black/40 cursor-not-allowed'
-                    : 'bg-[#e6e6e6] text-black/60 cursor-pointer hover:bg-[#d0d0d0]'
+                  ${
+                    uploading[req.id]
+                      ? "bg-gray-300 text-black/40 cursor-not-allowed"
+                      : "bg-[#e6e6e6] text-black/60 cursor-pointer hover:bg-[#d0d0d0]"
                   }
-                `}>
+                `}
+                >
                   <input
                     type="file"
                     accept=".pdf,application/pdf"
                     className="hidden"
                     disabled={uploading[req.id] || uploaded[req.id]}
-                    onChange={(e) => handleFileChange(req.id, e.target.files?.[0])}
+                    onChange={(e) =>
+                      handleFileChange(req.id, e.target.files?.[0])
+                    }
                   />
                   {uploading[req.id] ? (
-                    'Subiendo...'
+                    "Subiendo..."
                   ) : (
                     <>
                       <FolderUp className="h-4 w-4" />
