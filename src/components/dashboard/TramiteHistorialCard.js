@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import {
   CheckCircle,
   Clock,
@@ -5,9 +6,11 @@ import {
   Calendar,
   RefreshCcw,
   Folder,
+  Eye,
 } from "lucide-react";
 
 export default function TramiteHistorialCard({ tramite }) {
+  const router = useRouter();
   const estadoConfig = {
     Completado: {
       icon: CheckCircle,
@@ -73,6 +76,18 @@ export default function TramiteHistorialCard({ tramite }) {
           <Folder className="h-4 w-4" />
           {tramite.categoria}
         </div>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-black/10">
+        <button
+          onClick={() =>
+            router.push(`/dasboard/tramites/detalle/${tramite.id}`)
+          }
+          className="h-[32px] px-4 rounded-[6px] bg-[#0b3a77] text-white text-[12px] font-semibold flex items-center gap-2 hover:brightness-95 transition shadow-md"
+        >
+          <Eye className="h-4 w-4" />
+          Ver detalles
+        </button>
       </div>
     </article>
   );
