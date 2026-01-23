@@ -434,7 +434,7 @@ export default function DetalleTramitePage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="inline-flex items-center justify-center h-10 w-10 rounded-[10px] text-black/80 hover:bg-black/5 transition"
+              className="inline-flex items-center justify-center h-10 w-10 rounded-[10px] text-black/80 hover:bg-black/5 cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
               aria-label="Atrás"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -515,7 +515,7 @@ export default function DetalleTramitePage() {
             <button
               type="button"
               onClick={handleDescargar}
-              className="h-[30px] px-4 rounded-[4px] bg-[#0b3a77] text-white text-[12px] font-semibold flex items-center gap-2 hover:brightness-95 transition shadow-[0_3px_0_rgba(0,0,0,0.18)]"
+              className="h-[30px] px-4 rounded-md bg-[#0b3a77] text-white text-[12px] font-semibold flex items-center gap-2 hover:brightness-95 shadow-[0_3px_0_rgba(0,0,0,0.18)] cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
             >
               <Download className="h-4 w-4" />
               Descargar Comprobante

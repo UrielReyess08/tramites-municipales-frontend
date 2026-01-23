@@ -151,12 +151,16 @@ export default function LoginForm() {
           mt-6
           text-sm
           h-[30px] w-full
-          rounded-[4px]
+          rounded-md
+          py-5
           bg-[#0b3a77] text-white font-semibold
           flex items-center justify-center gap-2
           shadow-[0_4px_0_rgba(0,0,0,0.18)]
-          hover:brightness-95 transition
+          hover:brightness-95
           disabled:opacity-70 disabled:cursor-not-allowed
+          cursor-pointer
+          scale-100 active:scale-95
+          transition-all ease-in-out
         "
       >
         <LogIn className="h-[18px] w-[18px]" />

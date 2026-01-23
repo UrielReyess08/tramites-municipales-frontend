@@ -287,13 +287,13 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
                       }
                       className="
                     h-[30px] w-[120px]
-                    rounded-[4px]
+                    rounded-sm
                     border border-black/10
                     bg-[#e6e6e6]
                     text-[12px] font-semibold text-black/60
                     flex items-center justify-center gap-2
                     hover:bg-[#d0d0d0]
-                    transition
+                    cursor-pointer scale-100 active:scale-98 transition-all ease-in-out
                   "
                     >
                       <FolderDown className="h-4 w-4" />
@@ -324,7 +324,7 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
                 <label
                   className={`
                   h-[30px] w-[120px]
-                  rounded-[4px]
+                  rounded-sm
                   border border-black/10
                   text-[12px] font-semibold
                   flex items-center justify-center gap-2
@@ -332,7 +332,7 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
                   ${
                     uploading[req.id] || Object.values(uploading).some((v) => v)
                       ? "bg-gray-300 text-black/40 cursor-not-allowed"
-                      : "bg-[#e6e6e6] text-black/60 cursor-pointer hover:bg-[#d0d0d0]"
+                      : "bg-[#e6e6e6] text-black/60 cursor-pointer scale-100 active:scale-98 transition-all ease-in-out hover:bg-[#d0d0d0]"
                   }
                 `}
                 >
@@ -370,7 +370,7 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
         <button
           type="button"
           onClick={onBack}
-          className="h-[30px] w-[90px] rounded-[4px] border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/60"
+          className="h-[30px] w-[90px] rounded-md border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90 cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
         >
           Atrás
         </button>
@@ -378,7 +378,8 @@ export default function FileUploadModal({ tramite, onBack, onContinue }) {
         <button
           type="button"
           onClick={handleContinue}
-          className="h-[30px] flex-1 rounded-[4px] bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)]"
+          className="h-[30px] flex-1 rounded-md bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)]
+          cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
         >
           Continuar
         </button>

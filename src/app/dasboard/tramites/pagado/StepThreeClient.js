@@ -325,7 +325,7 @@ export default function StepThreeClient() {
             type="button"
             aria-label="Atrás"
             onClick={() => router.back()}
-            className="h-10 w-10 rounded-[10px] bg-transparent text-black/80 hover:bg-black/5 transition flex items-center justify-center"
+            className="h-10 w-10 rounded-[10px] bg-transparent text-black/80 hover:bg-black/5 flex items-center justify-center cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
           >
             <MoveLeft />
           </button>
@@ -392,7 +392,7 @@ export default function StepThreeClient() {
               </div>
               <button
                 onClick={handleCopyNumber}
-                className="mt-2 p-2 rounded-md hover:bg-[#0b3a77]/10 transition-colors"
+                className="mt-2 p-2 rounded-md hover:bg-[#0b3a77]/10 transition-colors cursor-pointer scale-100 active:scale-95 ease-in-out"
                 title="Copiar número"
               >
                 {copied ? (
@@ -496,7 +496,7 @@ export default function StepThreeClient() {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              className="h-[34px] flex-1 rounded-[4px] border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90 flex items-center justify-center gap-2"
+              className="h-[34px] flex-1 rounded-md border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90 flex items-center justify-center gap-2 cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
               onClick={() => handleDescargarComprobante()}
             >
               <Download className="h-4 w-4" />
@@ -516,7 +516,7 @@ export default function StepThreeClient() {
 
                 router.push("/dasboard");
               }}
-              className="h-[34px] flex-1 rounded-[4px] bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)] hover:brightness-95 transition"
+              className="h-[34px] flex-1 rounded-md bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)] hover:brightness-95 cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
             >
               Volver al Inicio
             </button>

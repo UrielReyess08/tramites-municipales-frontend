@@ -105,7 +105,7 @@ export default function StepTwoClient() {
             type="button"
             aria-label="Atrás"
             onClick={() => router.back()}
-            className="h-10 w-10 rounded-[10px] bg-transparent text-black/80 hover:bg-black/5 transition flex items-center justify-center"
+            className="h-10 w-10 rounded-[10px] bg-transparent text-black/80 hover:bg-black/5 flex items-center justify-center cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
           >
             <MoveLeft />
           </button>
@@ -181,7 +181,7 @@ export default function StepTwoClient() {
                   className={`
                     w-full rounded-[10px] border px-6 py-4
                     flex items-center gap-4 text-left
-                    transition
+                    cursor-pointer scale-100 active:scale-95 transition-all ease-in-out
                     ${
                       method === "tarjeta"
                         ? "bg-[#dcdcdc] border-black/20 shadow-[0_10px_18px_rgba(0,0,0,0.12)]"
@@ -214,7 +214,7 @@ export default function StepTwoClient() {
                   className={`
                     w-full rounded-[10px] border px-6 py-4
                     flex items-center gap-4 text-left
-                    transition
+                    cursor-pointer scale-100 active:scale-95 transition-all ease-in-out
                     ${
                       method === "transferencia"
                         ? "bg-[#dcdcdc] border-black/20 shadow-[0_10px_18px_rgba(0,0,0,0.12)]"
@@ -247,7 +247,7 @@ export default function StepTwoClient() {
                   className={`
                     w-full rounded-[10px] border px-6 py-4
                     flex items-center gap-4 text-left
-                    transition
+                    cursor-pointer scale-100 active:scale-95 transition-all ease-in-out
                     ${
                       method === "efectivo"
                         ? "bg-[#dcdcdc] border-black/20 shadow-[0_10px_18px_rgba(0,0,0,0.12)]"
@@ -280,7 +280,7 @@ export default function StepTwoClient() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="h-[34px] w-[90px] rounded-[4px] border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90"
+                className="h-[34px] w-[90px] rounded-md border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90 cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
               >
                 Atrás
               </button>
@@ -288,7 +288,7 @@ export default function StepTwoClient() {
               <button
                 type="submit"
                 disabled={loading}
-                className="h-[34px] flex-1 rounded-[4px] bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)] hover:brightness-95 transition disabled:opacity-70 disabled:cursor-not-allowed"
+                className="h-[34px] flex-1 rounded-md bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)] hover:brightness-95 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
               >
                 {loading ? "Procesando pago..." : "Confirmar Pago"}
               </button>

@@ -133,7 +133,7 @@ export default function NuevoTramiteClient() {
             type="button"
             aria-label="Atrás"
             onClick={() => router.back()}
-            className="h-10 w-10 rounded-[10px] bg-transparent text-black/80 hover:bg-black/5 transition flex items-center justify-center text-[24px]"
+            className="h-10 w-10 rounded-[10px] bg-transparent text-black/80 hover:bg-black/5 flex items-center justify-center text-[24px] cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
           >
             <MoveLeft />
           </button>
@@ -215,14 +215,14 @@ export default function NuevoTramiteClient() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="h-[34px] w-[90px] rounded-[4px] border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90"
+                className="h-[34px] w-[90px] rounded-md border border-black/10 bg-[#e6e6e6] text-[12px] font-semibold text-black/90 cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
               >
                 Atrás
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="h-[34px] flex-1 rounded-[4px] bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)] hover:brightness-95 transition disabled:opacity-70"
+                className="h-[34px] flex-1 rounded-md bg-[#0b3a77] text-white text-[12px] font-semibold shadow-[0_3px_0_rgba(0,0,0,0.18)] hover:brightness-95 disabled:opacity-70 cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
               >
                 {loading ? "Procesando..." : "Continuar al Pago"}
               </button>

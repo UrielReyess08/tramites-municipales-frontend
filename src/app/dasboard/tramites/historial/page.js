@@ -258,7 +258,7 @@ export default function HistorialPage() {
             </h1>
             <button
               onClick={() => router.push("/dasboard")}
-              className="h-[36px] px-4 rounded-[6px] bg-[#0b3a77] text-white text-[13px] font-semibold flex items-center gap-2 hover:brightness-95 transition shadow-md"
+              className="h-[36px] px-4 rounded-md bg-[#0b3a77] text-white text-[13px] font-semibold flex items-center gap-2 hover:brightness-95 shadow-md cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
             >
               <Home className="h-4 w-4" />
               Volver al Inicio
@@ -295,7 +295,7 @@ export default function HistorialPage() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setFiltroEstado("todos")}
-                className={`px-4 py-2 rounded-[6px] text-[12px] font-medium transition ${
+                className={`px-4 py-2 rounded-md cursor-pointer text-[12px] font-medium transition ${
                   filtroEstado === "todos"
                     ? "bg-[#0b3a77] text-white shadow-md"
                     : "bg-white text-black/70 border border-black/20 hover:bg-black/5"
@@ -305,7 +305,7 @@ export default function HistorialPage() {
               </button>
               <button
                 onClick={() => setFiltroEstado("completados")}
-                className={`px-4 py-2 rounded-[6px] text-[12px] font-medium transition ${
+                className={`px-4 py-2 rounded-md cursor-pointer text-[12px] font-medium transition ${
                   filtroEstado === "completados"
                     ? "bg-green-600 text-white shadow-md"
                     : "bg-white text-black/70 border border-black/20 hover:bg-black/5"
@@ -315,7 +315,7 @@ export default function HistorialPage() {
               </button>
               <button
                 onClick={() => setFiltroEstado("en-proceso")}
-                className={`px-4 py-2 rounded-[6px] text-[12px] font-medium transition ${
+                className={`px-4 py-2 rounded-md cursor-pointer text-[12px] font-medium transition ${
                   filtroEstado === "en-proceso"
                     ? "bg-orange-600 text-white shadow-md"
                     : "bg-white text-black/70 border border-black/20 hover:bg-black/5"
@@ -325,7 +325,7 @@ export default function HistorialPage() {
               </button>
               <button
                 onClick={() => setFiltroEstado("rechazados")}
-                className={`px-4 py-2 rounded-[6px] text-[12px] font-medium transition ${
+                className={`px-4 py-2 rounded-md cursor-pointer text-[12px] font-medium transition ${
                   filtroEstado === "rechazados"
                     ? "bg-red-600 text-white shadow-md"
                     : "bg-white text-black/70 border border-black/20 hover:bg-black/5"

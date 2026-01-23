@@ -83,7 +83,7 @@ export default function TramiteHistorialCard({ tramite }) {
           onClick={() =>
             router.push(`/dasboard/tramites/detalle/${tramite.id}`)
           }
-          className="h-[32px] px-4 rounded-[6px] bg-[#0b3a77] text-white text-[12px] font-semibold flex items-center gap-2 hover:brightness-95 transition shadow-md"
+          className="h-[32px] px-4 rounded-md bg-[#0b3a77] text-white text-[12px] font-semibold flex items-center gap-2 hover:brightness-95 shadow-md cursor-pointer scale-100 active:scale-95 transition-all ease-in-out"
         >
           <Eye className="h-4 w-4" />
           Ver detalles
