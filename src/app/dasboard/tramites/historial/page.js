@@ -71,9 +71,9 @@ export default function HistorialPage() {
         // Mapear datos del backend al formato esperado por el frontend
         const tramitesMapeados = data
           .filter((t) => {
-            // Excluir estados BORRADOR, ENVIADO y PAGADO
+            // Excluir solo BORRADOR y ENVIADO (incluir PAGADO como estado válido)
             const status = (t.status || "").toString().toUpperCase();
-            return !["BORRADOR", "ENVIADO", "PAGADO"].includes(status);
+            return !["BORRADOR", "ENVIADO"].includes(status);
           })
           .map((t) => {
             console.log("🔍 Procesando trámite:", t);
@@ -123,7 +123,7 @@ export default function HistorialPage() {
         }).length;
         const enProceso = tramitesMapeados.filter((t) => {
           const status = (t.status || "").toString().toUpperCase();
-          return ["EN_REVISION", "OBSERVADO"].includes(status);
+          return ["PAGADO", "EN_REVISION", "OBSERVADO"].includes(status);
         }).length;
         const rechazados = tramitesMapeados.filter((t) => {
           const status = (t.status || "").toString().toUpperCase();
@@ -163,7 +163,7 @@ export default function HistorialPage() {
     const estados = {
       BORRADOR: "Borrador",
       ENVIADO: "Enviado",
-      PAGADO: "Pagado",
+      PAGADO: "En Proceso",
       EN_REVISION: "En Proceso",
       OBSERVADO: "En Proceso",
       APROBADO: "Completado",
@@ -211,7 +211,7 @@ export default function HistorialPage() {
         if (filtroEstado === "completados") {
           return ["APROBADO"].includes(status);
         } else if (filtroEstado === "en-proceso") {
-          return ["EN_REVISION", "OBSERVADO"].includes(status);
+          return ["PAGADO", "EN_REVISION", "OBSERVADO"].includes(status);
         } else if (filtroEstado === "rechazados") {
           return ["RECHAZADO"].includes(status);
         }
