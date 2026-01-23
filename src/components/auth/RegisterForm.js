@@ -25,10 +25,10 @@ export default function RegisterForm() {
   const maxBirthDate = new Date(
     today.getFullYear() - 18,
     today.getMonth(),
-    today.getDate()
+    today.getDate(),
   );
 
-  const maxBirthDateStr = maxBirthDate.toISOString().slice(0, 10)
+  const maxBirthDateStr = maxBirthDate.toISOString().slice(0, 10);
 
   const ROL_FIJO = "CIUDADANO";
 
@@ -44,7 +44,7 @@ export default function RegisterForm() {
       PASAPORTE: { label: "Pasaporte", len: 9 },
       CE: { label: "Carnet de Extranjería", len: 9 },
     }),
-    []
+    [],
   );
 
   const docLen = DOC_RULES[formData.tipoDocumento]?.len ?? 20;
@@ -75,7 +75,9 @@ export default function RegisterForm() {
       setFormData((prev) => ({
         ...prev,
         tipoDocumento: nextValue,
-        nDocumento: prev.nDocumento ? prev.nDocumento.slice(0, DOC_RULES[nextValue].len) : "",
+        nDocumento: prev.nDocumento
+          ? prev.nDocumento.slice(0, DOC_RULES[nextValue].len)
+          : "",
       }));
       return;
     }
@@ -91,25 +93,34 @@ export default function RegisterForm() {
     setError("");
 
     const nameOk = /^[\p{L}]+(?:\s+[\p{L}]+)*$/u.test(formData.nombres.trim());
-    const lastNameOk = /^[\p{L}]+(?:\s+[\p{L}]+)*$/u.test(formData.apellidos.trim());
+    const lastNameOk = /^[\p{L}]+(?:\s+[\p{L}]+)*$/u.test(
+      formData.apellidos.trim(),
+    );
 
     if (!nameOk) return setError("El nombre solo debe contener letras.");
-    if (!lastNameOk) return setError("Los apellidos solo deben contener letras.");
+    if (!lastNameOk)
+      return setError("Los apellidos solo deben contener letras.");
 
     const doc = formData.nDocumento.trim();
-    if (!/^\d+$/.test(doc)) return setError("El número de documento solo debe contener números.");
+    if (!/^\d+$/.test(doc))
+      return setError("El número de documento solo debe contener números.");
     if (doc.length !== docLen) {
       return setError(`${docLabel} debe tener exactamente ${docLen} dígitos.`);
     }
 
     const phone = formData.telefono.trim();
-    if (!/^\d+$/.test(phone)) return setError("El teléfono solo debe contener números.");
+    if (!/^\d+$/.test(phone))
+      return setError("El teléfono solo debe contener números.");
     if (!phone) return setError("El teléfono es obligatorio.");
 
-    if (!formData.aceptaTerminos) return setError("Debes aceptar los términos y condiciones.");
-    if (formData.password !== formData.confirmPassword) return setError("Las contraseñas no coinciden.");
-    if (!formData.direccion?.trim()) return setError("La dirección es obligatoria.");
-    if (!formData.fechaNacimiento) return setError("La fecha de nacimiento es obligatoria.");
+    if (!formData.aceptaTerminos)
+      return setError("Debes aceptar los términos y condiciones.");
+    if (formData.password !== formData.confirmPassword)
+      return setError("Las contraseñas no coinciden.");
+    if (!formData.direccion?.trim())
+      return setError("La dirección es obligatoria.");
+    if (!formData.fechaNacimiento)
+      return setError("La fecha de nacimiento es obligatoria.");
 
     const birth = new Date(formData.fechaNacimiento + "T00:00:00");
     const today = new Date();
@@ -119,9 +130,9 @@ export default function RegisterForm() {
     if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
 
     if (age < 18) {
-    setError("Debes ser mayor de 18 años para registrarte.");
-    return;
-  }
+      setError("Debes ser mayor de 18 años para registrarte.");
+      return;
+    }
 
     setLoading(true);
 
@@ -319,9 +330,15 @@ export default function RegisterForm() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-black/80 hover:text-black"
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={
+                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                }
               >
-                {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                {showPassword ? (
+                  <Eye className="h-4 w-4" />
+                ) : (
+                  <EyeOff className="h-4 w-4" />
+                )}
               </button>
             </div>
 
@@ -339,9 +356,17 @@ export default function RegisterForm() {
                 type="button"
                 onClick={() => setShowConfirmPassword((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-black/80 hover:text-black"
-                aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-label={
+                  showConfirmPassword
+                    ? "Ocultar contraseña"
+                    : "Mostrar contraseña"
+                }
               >
-                {showConfirmPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                {showConfirmPassword ? (
+                  <Eye className="h-4 w-4" />
+                ) : (
+                  <EyeOff className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>
@@ -380,6 +405,17 @@ export default function RegisterForm() {
             {loading ? "Registrando..." : "Registrarse"}
             <CheckCircle className="h-4 w-4" />
           </button>
+
+          <p className="text-center text-sm text-black/70">
+            ¿Ya tienes cuenta?{" "}
+            <button
+              type="button"
+              onClick={() => router.push("/auth/login")}
+              className="text-[#0b3a77] font-semibold hover:underline"
+            >
+              Inicia sesión aquí
+            </button>
+          </p>
         </div>
       </div>
     </form>
