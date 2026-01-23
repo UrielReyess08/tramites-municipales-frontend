@@ -82,10 +82,11 @@ export default function HistorialPage() {
             const status = t.status || "DESCONOCIDO";
             const createdAt = t.createAt || t.createdAt;
             const updatedAt = t.updateAt || t.updatedAt;
+            const code = t.code || `TR-${String(id).padStart(6, "0")}`;
 
             return {
               id,
-              numero: `TR-${String(id).padStart(6, "0")}`,
+              numero: code,
               tipo: procedureName,
               descripcion: "Trámite en proceso",
               estado: mapearEstado(status),
@@ -173,11 +174,23 @@ export default function HistorialPage() {
   function formatearFecha(fecha) {
     if (!fecha) return "N/A";
     try {
-      const date = new Date(fecha);
+      let date;
+
+      // Si la fecha viene solo como YYYY-MM-DD (sin hora), agregar hora local para evitar conversión de zona horaria
+      if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
+        date = new Date(fecha + "T00:00:00");
+      } else {
+        date = new Date(fecha);
+      }
+
+      // Verificamos que la fecha sea válida
+      if (isNaN(date.getTime())) return "N/A";
+
       return date.toLocaleDateString("es-PE", {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
+        timeZone: "America/Lima",
       });
     } catch {
       return fecha;
@@ -210,6 +223,7 @@ export default function HistorialPage() {
       resultado = resultado.filter(
         (t) =>
           t.numero.toLowerCase().includes(termino) ||
+          (t.code && t.code.toLowerCase().includes(termino)) ||
           t.tipo.toLowerCase().includes(termino) ||
           t.descripcion.toLowerCase().includes(termino),
       );
