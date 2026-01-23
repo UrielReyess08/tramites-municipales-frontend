@@ -187,7 +187,7 @@ export default function RegisterForm() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <p className={labelClass}>&nbsp;</p>
+          <p className={labelClass}>Nombres completos</p>
           <input
             type="text"
             name="nombres"
@@ -200,7 +200,7 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <p className={labelClass}>&nbsp;</p>
+          <p className={labelClass}>Apellidos completos</p>
           <input
             type="text"
             name="apellidos"
@@ -229,7 +229,7 @@ export default function RegisterForm() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-          <p className={labelClass}>&nbsp;</p>
+          <p className={labelClass}>Documento</p>
           <input
             type="text"
             name="nDocumento"
@@ -256,21 +256,11 @@ export default function RegisterForm() {
             max={maxBirthDateStr}
           />
         </div>
-
-        <div>
-          <p className={labelClass}>Rol</p>
-          <input
-            type="text"
-            value={ROL_FIJO}
-            disabled
-            className={fieldClass + " opacity-80 cursor-not-allowed"}
-          />
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <p className={labelClass}>&nbsp;</p>
+          <p className={labelClass}>Teléfono</p>
           <input
             type="tel"
             name="telefono"
@@ -285,7 +275,7 @@ export default function RegisterForm() {
         </div>
 
         <div>
-          <p className={labelClass}>&nbsp;</p>
+          <p className={labelClass}>Dirección</p>
           <input
             type="text"
             name="direccion"
