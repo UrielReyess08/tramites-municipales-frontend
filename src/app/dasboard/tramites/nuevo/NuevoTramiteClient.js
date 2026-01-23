@@ -27,15 +27,22 @@ export default function NuevoTramiteClient() {
     }
   }, []);
 
-  // Solo números enteros: elimina cualquier carácter no numérico
-  function sanitizeIntegerInput(value) {
+  // Permitir números decimales: acepta dígitos y un único punto decimal
+  function sanitizeDecimalInput(value) {
     if (typeof value !== "string") return "";
-    return value.replace(/[^0-9]/g, "");
+    // Permitir solo números y un punto decimal
+    let sanitized = value.replace(/[^0-9.]/g, "");
+    // Asegurar que solo haya un punto decimal
+    const parts = sanitized.split(".");
+    if (parts.length > 2) {
+      sanitized = parts[0] + "." + parts.slice(1).join("");
+    }
+    return sanitized;
   }
 
   function handleChange(e) {
     const { name, value } = e.target;
-    const newValue = name === "area_m2" ? sanitizeIntegerInput(value) : value;
+    const newValue = name === "area_m2" ? sanitizeDecimalInput(value) : value;
     const newData = { ...formData, [name]: newValue };
     setFormData(newData);
     // Guardar en localStorage para persistencia
@@ -56,10 +63,10 @@ export default function NuevoTramiteClient() {
         return;
       }
 
-      // Validar que el área sea un entero válido
-      const areaInt = parseInt(formData.area_m2, 10);
-      if (isNaN(areaInt)) {
-        throw new Error("Ingrese solo números en el campo Área en m².");
+      // Validar que el área sea un número válido (puede ser decimal)
+      const areaNum = parseFloat(formData.area_m2);
+      if (isNaN(areaNum) || areaNum <= 0) {
+        throw new Error("Ingrese un área válida en m².");
       }
 
       const response = await fetch(`/api/applications/${applicationId}/form`, {
@@ -76,7 +83,7 @@ export default function NuevoTramiteClient() {
             },
             {
               field: "area_m2",
-              value: String(areaInt),
+              value: String(areaNum),
             },
           ],
         }),
