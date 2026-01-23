@@ -16,9 +16,11 @@ import {
 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function StepThreeClient() {
   const router = useRouter();
+  useAuth();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

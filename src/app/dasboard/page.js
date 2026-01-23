@@ -8,9 +8,11 @@ import Modal from "@/components/ui/Modal";
 import TramiteTypeSelector from "@/components/tramites/TramiteTypeSelector";
 import FileUploadModal from "@/components/tramites/FileUpLoadModal";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function DashboardPage() {
   const router = useRouter();
+  useAuth();
   const [modalStep, setModalStep] = useState(null);
   const [selectedTramite, setSelectedTramite] = useState(null);
   const [tramites, setTramites] = useState([]);

@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo } from "react";
 import Header from "@/components/dashboard/Header";
 import StatsPanel from "@/components/dashboard/StatsPanel";
 import TramiteHistorialCard from "@/components/dashboard/TramiteHistorialCard";
+import { useAuth } from "@/hooks/useAuth";
 import {
   FileText,
   Search,
@@ -15,6 +16,7 @@ import {
 
 export default function HistorialPage() {
   const router = useRouter();
+  useAuth();
   const [tramites, setTramites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({

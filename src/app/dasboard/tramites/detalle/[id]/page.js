@@ -7,10 +7,12 @@ import TramiteTimeline from "@/components/tramites/TramiteTimeline";
 import { ArrowLeft, Download } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function DetalleTramitePage() {
   const router = useRouter();
   const { id } = useParams();
+  useAuth();
   const [tramite, setTramite] = useState(null);
   const [historial, setHistorial] = useState([]);
   const [loading, setLoading] = useState(true);
