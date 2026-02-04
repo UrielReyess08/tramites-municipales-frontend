@@ -1,8 +1,12 @@
 "use client";
 
-import { Settings } from "lucide-react";
+import { Settings, HelpCircle } from "lucide-react";
+import { useState } from "react";
 
 export default function TramiteTypeSelector({ tramites = [], onSelect }) {
+  const [showHelpPopup, setShowHelpPopup] = useState(false);
+  const [selectedTramite, setSelectedTramite] = useState(null);
+
   // Si no hay trámites, mostrar mensaje
   if (!tramites || tramites.length === 0) {
     return (
@@ -46,10 +50,24 @@ export default function TramiteTypeSelector({ tramites = [], onSelect }) {
                 <Settings className="h-6 w-6 text-[#0b3a77]" />
               </div> */}
 
-              <div className="text-left">
-                <h3 className="text-[14px] font-semibold text-black leading-snug">
-                  {t.name || t.nombre}
-                </h3>
+              <div className="text-left flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-[14px] font-semibold text-black leading-snug">
+                    {t.name || t.nombre}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedTramite(t);
+                      setShowHelpPopup(true);
+                    }}
+                    className="text-blue-600 hover:text-blue-800 transition flex-shrink-0"
+                    title="Ver requisitos"
+                  >
+                    <HelpCircle className="h-4 w-4" />
+                  </button>
+                </div>
                 <p className="text-[12px] text-black/35 leading-snug">
                   {t.description || t.descripcion}
                 </p>
@@ -57,13 +75,38 @@ export default function TramiteTypeSelector({ tramites = [], onSelect }) {
             </div>
 
             <div className="text-right">
-              <span className="text-[30px] font-semibold text-[#0b3a77]">
+              <span className="text-[26px] font-semibold text-[#0b3a77]">
                 S/ {parseFloat(t.cost || t.precio || 0).toFixed(2)}
               </span>
             </div>
           </button>
         ))}
       </div>
+
+      {showHelpPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 animate-in fade-in zoom-in duration-300">
+            <h2 className="text-lg font-semibold text-black mb-4">
+              Requisitos para {selectedTramite?.name || selectedTramite?.nombre}
+            </h2>
+            <p className="text-sm text-black/70 mb-6 leading-relaxed">
+              Para realizar este trámite necesitas:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Documento de identidad válido</li>
+                <li>Comprobante de domicilio</li>
+                <li>Formulario completado</li>
+                <p>Tiempo estimado para la tramitación es de una semana.</p>
+              </ul>
+            </p>
+            <button
+              onClick={() => setShowHelpPopup(false)}
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
