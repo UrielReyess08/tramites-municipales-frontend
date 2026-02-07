@@ -136,7 +136,7 @@ export default function AdminDashboard() {
   return (
     <div>
     {/* HEADER */}
-    <div className="mx-auto max-w-[2200px] px-4 pt-1 pb-3">
+    <div className="mx-auto max-w-[2200px] px-4 pb-2">
       <h1 className="text-[30px] font-bold text-black mb-1">
         Bienvenido, Administrador
       </h1>
@@ -332,7 +332,7 @@ export default function AdminDashboard() {
       </div>
 
       {filteredTramites.length > ITEMS_PER_PAGE && (
-        <div className="flex items-center justify-center gap-2 mt-5 pb-6">
+        <div className="flex items-center justify-center gap-2 mt-3 pb-6">
           <button
             onClick={() => handlePageChange(Math.max(1, currentPageNum - 1))}
             disabled={currentPageNum === 1}
